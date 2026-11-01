@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Departments | Attenda Management{% endblock %}
+{% block page_title %}Department Management{% endblock %}
+{% block page_subtitle %}Manage institutional academic divisions, faculties, and enrolled student capacity{% endblock %}
+
+{% block content %}
+<div class="card card-custom p-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-2">
+        <div>
+            <h5 class="fw-bold mb-1">Academic Departments ({{ departments.count }})</h5>
+            <p class="text-muted small mb-0">Overview of all active academic faculties and student enrollment count</p>
+        </div>
+        <a href="{% url 'department_add' %}" class="btn btn-primary rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-2 shadow-sm">
+            <i class="bi bi-plus-circle-fill"></i> Add Department
+        </a>
+    </div>
+
+    <div class="row g-4">
+        {% for dept in departments %}
+        <div class="col-md-6 col-xl-4">
+            <div class="card border h-100 shadow-sm rounded-4 p-3 bg-white d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-1 rounded-pill font-monospace fw-bold">
+                            {{ dept.code }}
+                        </span>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light rounded-circle border-0" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                <li>
+                                    <a class="dropdown-item py-2" href="{% url 'department_edit' dept.pk %}">
+                                        <i class="bi bi-pencil-square me-2 text-primary"></i> Edit Department
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2 text-danger" href="{% url 'department_delete' dept.pk %}">
+                                        <i class="bi bi-trash me-2"></i> Delete Department
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-2">{{ dept.name }}</h5>
+                    <p class="text-muted small mb-3">
+                        {{ dept.description|default:"No department description provided."|truncatechars:110 }}
+                    </p>
+                </div>
+
+                <div class="pt-3 border-top">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-1 small text-secondary">
+                            <i class="bi bi-people-fill text-primary"></i>
+                            <span>Students: <strong>{{ dept.total_students }}</strong></span>
+                        </div>
+                        <div class="d-flex align-items-center gap-1 small text-secondary">
+                            <i class="bi bi-journal-code text-info"></i>
+                            <span>Courses: <strong>{{ dept.total_courses }}</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'student_list' %}?department={{ dept.id }}" class="btn btn-outline-primary btn-sm w-100 rounded-pill">
+                            <i class="bi bi-person-lines-fill me-1"></i> View Students ({{ dept.total_students }})
+                        </a>
+                        <a href="{% url 'department_edit' dept.pk %}" class="btn btn-light btn-sm border rounded-circle p-2" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5 text-muted">
+            <i class="bi bi-building fs-1 d-block mb-3 text-secondary"></i>
+            <h6>No departments registered yet.</h6>
+            <a href="{% url 'department_add' %}" class="btn btn-primary btn-sm rounded-pill mt-2">Create First Department</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Students | Attenda Portal{% endblock %}
+{% block page_title %}Student Directory{% endblock %}
+{% block page_subtitle %}View, search, filter, and manage institutional student records{% endblock %}
+
+{% block content %}
+<!-- Search & Filter Card (Module 4) -->
+<div class="card card-custom p-4 mb-4 border-0 shadow-sm bg-white">
+    <form method="GET" action="{% url 'student_list' %}" class="row g-3 align-items-end">
+        <!-- Search query -->
+        <div class="col-lg-3 col-md-6">
+            <label class="form-label fw-semibold small text-secondary">Search</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" name="q" class="form-control border-start-0" placeholder="Name, Roll No, or Email..." value="{{ query }}">
+            </div>
+        </div>
+
+        <!-- Filter by Department -->
+        <div class="col-lg-2 col-md-4">
+            <label class="form-label fw-semibold small text-secondary">Department</label>
+            <select name="department" class="form-select">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if selected_dept == dept.id|stringformat:"s" %}selected{% endif %}>
+                        {{ dept.code }} - {{ dept.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Filter by Course -->
+        <div class="col-lg-2 col-md-4">
+            <label class="form-label fw-semibold small text-secondary">Course</label>
+            <select name="course" class="form-select">
+                <option value="">All Courses</option>
+                {% for c in courses %}
+                    <option value="{{ c.id }}" {% if selected_course == c.id|stringformat:"s" %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Filter by Gender -->
+        <div class="col-lg-2 col-md-4">
+            <label class="form-label fw-semibold small text-secondary">Gender</label>
+            <select name="gender" class="form-select">
+                <option value="">All Genders</option>
+                <option value="Male" {% if selected_gender == 'Male' %}selected{% endif %}>Male</option>
+                <option value="Female" {% if selected_gender == 'Female' %}selected{% endif %}>Female</option>
+                <option value="Other" {% if selected_gender == 'Other' %}selected{% endif %}>Other</option>
+            </select>
+        </div>
+
+        <!-- Sort By -->
+        <div class="col-lg-2 col-md-4">
+            <label class="form-label fw-semibold small text-secondary">Sort By</label>
+            <select name="sort" class="form-select">
+                <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>Oldest First</option>
+                <option value="name_asc" {% if selected_sort == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
+                <option value="name_desc" {% if selected_sort == 'name_desc' %}selected{% endif %}>Name (Z-A)</option>
+                <option value="cgpa_desc" {% if selected_sort == 'cgpa_desc' %}selected{% endif %}>Highest CGPA</option>
+                <option value="cgpa_asc" {% if selected_sort == 'cgpa_asc' %}selected{% endif %}>Lowest CGPA</option>
+            </select>
+        </div>
+
+        <!-- Submit & Reset Buttons -->
+        <div class="col-lg-1 col-md-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-100 fw-semibold" title="Apply Filters">
+                <i class="bi bi-funnel-fill"></i>
+            </button>
+            {% if query or selected_dept or selected_course or selected_gender or selected_sort != 'newest' %}
+                <a href="{% url 'student_list' %}" class="btn btn-outline-secondary" title="Reset Filters">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Students Table Card (Module 3) -->
+<div class="card card-custom p-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-2">
+        <div>
+            <h5 class="fw-bold mb-1">Enrolled Students ({{ total_results }})</h5>
+            <p class="text-muted small mb-0">Showing records stored in database with quick administrative actions</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'export_students_csv' %}" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-medium d-inline-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-download"></i> Export CSV
+            </a>
+            <a href="{% url 'student_add' %}" class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-person-plus-fill"></i> Add Student
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr class="text-muted small text-uppercase">
+                    <th style="width: 50px;">Photo</th>
+                    <th>Student Name &amp; Contact</th>
+                    <th>Register No</th>
+                    <th>Department</th>
+                    <th>Course &amp; Semester</th>
+                    <th>CGPA</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if page_obj %}
+                    {% for student in page_obj %}
+                    <tr>
+                        <td>
+                            {% if student.photo %}
+                                <img src="{{ student.photo.url }}" alt="{{ student.name }}" class="student-avatar">
+                            {% else %}
+                                <div class="student-avatar bg-primary-subtle text-primary fw-bold">
+                                    {{ student.name|make_list|first|upper }}
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'student_detail' student.pk %}" class="fw-semibold text-dark text-decoration-none d-block">
+                                {{ student.name }}
+                            </a>
+                            <div class="small text-muted d-flex align-items-center gap-2">
+                                <span><i class="bi bi-envelope me-1"></i>{{ student.email }}</span>
+                                <span>&bull;</span>
+                                <span><i class="bi bi-telephone me-1"></i>{{ student.phone }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border font-monospace px-2 py-1">
+                                {{ student.register_number }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary-subtle text-secondary fw-semibold">
+                                {{ student.department.code }}
+                            </span>
+                            <div class="small text-muted" style="font-size: 0.75rem;">{{ student.department.name }}</div>
+                        </td>
+                        <td>
+                            <div class="fw-medium text-dark small">{{ student.course.name }}</div>
+                            <small class="text-muted">{{ student.year_semester }}</small>
+                        </td>
+                        <td>
+                            <span class="badge {{ student.cgpa_badge_class }} badge-cgpa">
+                                {{ student.cgpa }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if student.status == 'Active' %}
+                                <span class="badge bg-success-subtle text-success badge-custom"><i class="bi bi-circle-fill" style="font-size: 6px;"></i> Active</span>
+                            {% elif student.status == 'Graduated' %}
+                                <span class="badge bg-info-subtle text-info badge-custom"><i class="bi bi-mortarboard-fill"></i> Graduated</span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger badge-custom"><i class="bi bi-pause-circle-fill"></i> Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'student_detail' student.pk %}" class="btn btn-outline-primary" title="View Profile">
+                                    <i class="bi bi-eye-fill"></i> View
+                                </a>
+                                <a href="{% url 'student_edit' student.pk %}" class="btn btn-outline-secondary" title="Edit Student">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                <a href="{% url 'student_delete' student.pk %}" class="btn btn-outline-danger" title="Delete Student">
+                                    <i class="bi bi-trash-fill"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-search fs-1 d-block mb-3 text-secondary"></i>
+                            <h6 class="fw-semibold">No students found matching your criteria.</h6>
+                            <p class="small mb-3">Try adjusting your search keywords or active filters.</p>
+                            <a href="{% url 'student_list' %}" class="btn btn-outline-secondary btn-sm">Clear All Filters</a>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="d-flex flex-wrap align-items-center justify-content-between mt-4 pt-3 border-top gap-3">
+        <div class="small text-muted">
+            Showing page <strong>{{ page_obj.number }}</strong> of <strong>{{ page_obj.paginator.num_pages }}</strong> 
+            (Total {{ total_results }} students)
+        </div>
+        <nav aria-label="Student list pagination">
+            <ul class="pagination pagination-sm mb-0">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}&department={{ selected_dept }}&course={{ selected_course }}&gender={{ selected_gender }}&sort={{ selected_sort }}">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="bi bi-chevron-left"></i> Previous</span></li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}&q={{ query }}&department={{ selected_dept }}&course={{ selected_course }}&gender={{ selected_gender }}&sort={{ selected_sort }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}&department={{ selected_dept }}&course={{ selected_course }}&gender={{ selected_gender }}&sort={{ selected_sort }}">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Next <i class="bi bi-chevron-right"></i></span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

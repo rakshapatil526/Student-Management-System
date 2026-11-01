@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | Attenda{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block page_subtitle %}Configure department details, code, and academic description{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card card-custom p-4 p-md-5">
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-secondary">Department Name <span class="text-danger">*</span></label>
+                    {{ form.name }}
+                    <small class="text-muted">e.g. Computer Science &amp; Engineering, School of Management</small>
+                    {% if form.name.errors %}
+                        <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-secondary">Department Code <span class="text-danger">*</span></label>
+                    {{ form.code }}
+                    <small class="text-muted">Unique short identifier (e.g. CSE, IT, ECE, MECH)</small>
+                    {% if form.code.errors %}
+                        <div class="text-danger small mt-1">{{ form.code.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold small text-secondary">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="text-danger small mt-1">{{ form.description.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex justify-content-end gap-3 pt-3 border-top">
+                    <a href="{% url 'department_list' %}" class="btn btn-outline-secondary px-4 rounded-pill">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4 rounded-pill fw-semibold shadow-sm d-flex align-items-center gap-2">
+                        <i class="bi bi-check2-circle"></i> Save Department
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

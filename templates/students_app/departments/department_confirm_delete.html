@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Department | Attenda{% endblock %}
+{% block page_title %}Department Deletion Safety Check{% endblock %}
+{% block page_subtitle %}Verifying relational integrity before deleting faculty{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card card-custom p-4 p-md-5 text-center">
+            {% if student_count > 0 %}
+                <div class="stat-icon warning mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.8rem; border-radius: 50%;">
+                    <i class="bi bi-shield-exclamation"></i>
+                </div>
+
+                <h4 class="fw-bold mb-2 text-danger">Cannot Delete Department</h4>
+                <p class="text-muted mb-4">
+                    The department <strong class="text-dark">{{ dept.name }}</strong> (<code>{{ dept.code }}</code>) is currently linked to 
+                    <strong class="text-danger">{{ student_count }} enrolled student(s)</strong>.
+                </p>
+
+                <div class="alert alert-warning text-start small mb-4">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    In accordance with database integrity rules, you cannot delete a department while active student profiles are associated with it. Please reassign or delete these students first.
+                </div>
+
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="{% url 'department_list' %}" class="btn btn-outline-secondary px-4 rounded-pill">
+                        Back to Departments
+                    </a>
+                    <a href="{% url 'student_list' %}?department={{ dept.id }}" class="btn btn-primary px-4 rounded-pill">
+                        <i class="bi bi-people me-1"></i> View Linked Students ({{ student_count }})
+                    </a>
+                </div>
+            {% else %}
+                <div class="stat-icon danger mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.8rem; border-radius: 50%;">
+                    <i class="bi bi-trash-fill"></i>
+                </div>
+
+                <h4 class="fw-bold mb-2">Delete Department?</h4>
+                <p class="text-muted mb-4">
+                    Are you sure you want to delete <strong class="text-dark">{{ dept.name }}</strong> (<code>{{ dept.code }}</code>)?
+                    No students are currently linked to this department.
+                </p>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'department_list' %}" class="btn btn-outline-secondary px-4 rounded-pill">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger px-4 rounded-pill fw-semibold">
+                            Yes, Delete Department
+                        </button>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

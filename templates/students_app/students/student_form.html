@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | Attenda Student Management{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block page_subtitle %}{{ subtitle }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-xl-9 col-lg-11">
+        <div class="card card-custom p-4 p-md-5">
+            <form method="POST" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                <!-- Section 1: Basic Information -->
+                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                    <span class="badge bg-primary rounded-circle p-2"><i class="bi bi-person-fill"></i></span>
+                    <h5 class="fw-bold mb-0">1. Personal & Contact Information</h5>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Full Student Name <span class="text-danger">*</span></label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="text-danger small mt-1">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Register / Roll Number <span class="text-danger">*</span></label>
+                        {{ form.register_number }}
+                        {% if form.register_number.errors %}
+                            <div class="text-danger small mt-1">{{ form.register_number.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Email Address <span class="text-danger">*</span></label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Phone Number <span class="text-danger">*</span></label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Gender <span class="text-danger">*</span></label>
+                        {{ form.gender }}
+                        {% if form.gender.errors %}
+                            <div class="text-danger small mt-1">{{ form.gender.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Date of Birth <span class="text-danger">*</span></label>
+                        {{ form.date_of_birth }}
+                        {% if form.date_of_birth.errors %}
+                            <div class="text-danger small mt-1">{{ form.date_of_birth.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Section 2: Academic Details -->
+                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                    <span class="badge bg-success rounded-circle p-2"><i class="bi bi-mortarboard-fill"></i></span>
+                    <h5 class="fw-bold mb-0">2. Academic & Enrollment Details</h5>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Department <span class="text-danger">*</span></label>
+                        {{ form.department }}
+                        <small class="text-muted" style="font-size: 0.76rem;">Select a department to filter associated courses.</small>
+                        {% if form.department.errors %}
+                            <div class="text-danger small mt-1">{{ form.department.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Course Selection <span class="text-danger">*</span></label>
+                        {{ form.course }}
+                        {% if form.course.errors %}
+                            <div class="text-danger small mt-1">{{ form.course.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small text-secondary">Year / Semester <span class="text-danger">*</span></label>
+                        {{ form.year_semester }}
+                        {% if form.year_semester.errors %}
+                            <div class="text-danger small mt-1">{{ form.year_semester.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small text-secondary">CGPA (0.00 - 10.00) <span class="text-danger">*</span></label>
+                        {{ form.cgpa }}
+                        {% if form.cgpa.errors %}
+                            <div class="text-danger small mt-1">{{ form.cgpa.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold small text-secondary">Enrollment Status</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <div class="text-danger small mt-1">{{ form.status.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Section 3: Student Photo & Address -->
+                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                    <span class="badge bg-info rounded-circle p-2 text-white"><i class="bi bi-image-fill"></i></span>
+                    <h5 class="fw-bold mb-0">3. Profile Photo & Address (Optional)</h5>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Upload Student Photo</label>
+                        {{ form.photo }}
+                        <small class="text-muted d-block mt-1">Accepts PNG, JPG, JPEG (Max 5MB)</small>
+                        {% if form.photo.errors %}
+                            <div class="text-danger small mt-1">{{ form.photo.errors.0 }}</div>
+                        {% endif %}
+
+                        <div class="mt-3 d-flex align-items-center gap-3">
+                            <span class="small text-muted">Preview:</span>
+                            {% if is_edit and student.photo %}
+                                <img id="studentPhotoPreview" src="{{ student.photo.url }}" alt="Preview" class="student-avatar-lg shadow-sm" style="width: 70px; height: 70px;">
+                            {% else %}
+                                <img id="studentPhotoPreview" src="" alt="Preview" class="student-avatar-lg shadow-sm d-none" style="width: 70px; height: 70px;">
+                                <div class="badge bg-light text-muted border py-2 px-3">No image chosen</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small text-secondary">Permanent / Residential Address</label>
+                        {{ form.address }}
+                        {% if form.address.errors %}
+                            <div class="text-danger small mt-1">{{ form.address.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Submit / Action Buttons -->
+                <div class="d-flex align-items-center justify-content-end gap-3 pt-3 border-top">
+                    {% if is_edit %}
+                        <a href="{% url 'student_detail' student.pk %}" class="btn btn-outline-secondary px-4 rounded-pill">Cancel</a>
+                    {% else %}
+                        <a href="{% url 'student_list' %}" class="btn btn-outline-secondary px-4 rounded-pill">Cancel</a>
+                    {% endif %}
+                    
+                    <button type="submit" class="btn btn-primary px-5 py-2 fw-semibold rounded-pill shadow-sm d-flex align-items-center gap-2">
+                        <i class="bi bi-check2-circle fs-5"></i>
+                        <span>Save Student Record</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
